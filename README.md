@@ -1,2 +1,4 @@
-learning-things
+Learning Things
 ===============
+
+* Currently it's Android.
