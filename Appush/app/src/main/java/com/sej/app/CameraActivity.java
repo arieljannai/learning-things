@@ -1,22 +1,28 @@
 package com.sej.app;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.FrameLayout;
 
 public class CameraActivity extends Activity {
     private Camera mCamera;
     private CameraPreview mPreview;
+    private ActionBar actBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +30,28 @@ public class CameraActivity extends Activity {
         setContentView(R.layout.activity_camera);
 
         // Create an instance of Camera
-        mCamera = getCameraInstance();
+        mCamera = getCameraInstance(1);
+        /*int numCameras = Camera.getNumberOfCameras();
+
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+
+        for (int i = 0; i < numCameras; i++) {
+            Camera.getCameraInfo(i, cameraInfo);
+            int facing = cameraInfo.facing;
+            int orientation = cameraInfo.orientation;
+        }
+
+        Camera.Parameters params = mCamera.getParameters();*/
 
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+
+        /*getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        actBar = getActionBar();
+        actBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#330000ff")));
+        actBar.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#550000ff")));*/
     }
 
 
@@ -72,13 +94,19 @@ public class CameraActivity extends Activity {
     }
 
     /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance(){
+    public Camera getCameraInstance(){
+        return getCameraInstance(0);
+    }
+
+    /** A safe way to get an instance of the Camera object. */
+    public Camera getCameraInstance(int camId){
         Camera c = null;
         try {
-            c = Camera.open(); // attempt to get a Camera instance
+            releaseCamera();
+            c = Camera.open(camId); // attempt to get a Camera instance
         }
         catch (Exception e){
-            // Camera is not available (in use or does not exist)
+            Log.e("CameraActivity", "Could not get the camera: " + e.getMessage());
         }
         return c; // returns null if camera is unavailable
     }

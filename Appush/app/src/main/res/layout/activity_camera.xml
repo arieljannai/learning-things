@@ -3,7 +3,7 @@
     android:id="@+id/container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal"
+
     tools:context="com.sej.app.CameraActivity"
     tools:ignore="MergeRootFrame" >
 
