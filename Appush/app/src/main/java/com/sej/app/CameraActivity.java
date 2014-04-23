@@ -17,16 +17,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import java.util.List;
 
 public class CameraActivity extends Activity {
     private Camera mCamera;
     private CameraPreview mPreview;
     private ActionBar actBar;
+    private List<Camera.Size> mSupportedPreviewSizes;
+    private Camera.Size mPreviewSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_camera);
 
         // Create an instance of Camera
@@ -43,6 +53,8 @@ public class CameraActivity extends Activity {
 
         Camera.Parameters params = mCamera.getParameters();*/
 
+        this.mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -53,7 +65,6 @@ public class CameraActivity extends Activity {
         actBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#330000ff")));
         actBar.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#550000ff")));*/
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,6 +91,17 @@ public class CameraActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        setMeasuredDimension(width, height);
+
+        if (mSupportedPreviewSizes != null) {
+            mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+        }
     }
 
     /** Check if this device has a camera */
@@ -122,5 +144,37 @@ public class CameraActivity extends Activity {
             mCamera.release();        // release the camera for other applications
             mCamera = null;
         }
+    }
+
+    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio=(double)h / w;
+
+        if (sizes == null) return null;
+
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        for (Camera.Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+        return optimalSize;
     }
 }

@@ -32,6 +32,7 @@
         <activity
             android:name=".CameraActivity"
             android:label="@string/title_activity_camera_preview"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.sej.app.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

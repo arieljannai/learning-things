@@ -3,14 +3,15 @@
     android:id="@+id/container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:orientation="vertical"
 
     tools:context="com.sej.app.CameraActivity"
     tools:ignore="MergeRootFrame" >
 
     <FrameLayout
         android:id="@+id/camera_preview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="1"/>
 
 </LinearLayout>
